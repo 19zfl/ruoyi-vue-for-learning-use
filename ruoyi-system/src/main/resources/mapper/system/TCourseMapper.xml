@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.TCourseMapper">
+    
+    <resultMap type="TCourse" id="TCourseResult">
+        <result property="id"    column="id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createUserName"    column="create_user_name"    />
+        <result property="courseName"    column="course_name"    />
+        <result property="courseStatus"    column="course_status"    />
+    </resultMap>
+
+    <sql id="selectTCourseVo">
+        select id, create_time, create_user_name, course_name, course_status from t_course
+    </sql>
+
+    <select id="selectTCourseList" parameterType="TCourse" resultMap="TCourseResult">
+        <include refid="selectTCourseVo"/>
+        <where>  
+            <if test="createUserName != null  and createUserName != ''"> and create_user_name like concat('%', #{createUserName}, '%')</if>
+            <if test="courseName != null  and courseName != ''"> and course_name like concat('%', #{courseName}, '%')</if>
+            <if test="courseStatus != null "> and course_status = #{courseStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectTCourseById" parameterType="Long" resultMap="TCourseResult">
+        <include refid="selectTCourseVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="statusIsTwoCourseList" resultMap="TCourseResult">
+        select id, course_name from t_course
+        <where>
+            <if test="courseStatus != null "> and course_status = #{courseStatus}</if>
+        </where>
+    </select>
+
+    <insert id="insertTCourse" parameterType="TCourse" useGeneratedKeys="true" keyProperty="id">
+        insert into t_course
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">create_time,</if>
+            <if test="createUserName != null">create_user_name,</if>
+            <if test="courseName != null">course_name,</if>
+            <if test="courseStatus != null">course_status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createUserName != null">#{createUserName},</if>
+            <if test="courseName != null">#{courseName},</if>
+            <if test="courseStatus != null">#{courseStatus},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTCourse" parameterType="TCourse">
+        update t_course
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createUserName != null">create_user_name = #{createUserName},</if>
+            <if test="courseName != null">course_name = #{courseName},</if>
+            <if test="courseStatus != null">course_status = #{courseStatus},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTCourseById" parameterType="Long">
+        delete from t_course where id = #{id}
+    </delete>
+
+    <delete id="deleteTCourseByIds" parameterType="String">
+        delete from t_course where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

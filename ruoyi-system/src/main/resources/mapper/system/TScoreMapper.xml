@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.TScoreMapper">
+    
+    <resultMap type="TScore" id="TScoreResult">
+        <result property="id"    column="id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createUserName"    column="create_user_name"    />
+        <result property="courseId"    column="course_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="score"    column="score"    />
+        <result property="courseName"    column="course_name"    />
+        <result property="stuName"    column="stu_name"    />
+    </resultMap>
+
+    <sql id="selectTScoreVo">
+        select id, create_time, create_user_name, course_id, user_id, score from t_score
+    </sql>
+
+    <select id="selectTScoreList" parameterType="TScore" resultMap="TScoreResult">
+        select t1.id, t1.create_user_name, t1.score, t2.course_name, t3.stu_name from t_score t1
+        LEFT JOIN t_course t2 ON t1.course_id = t2.id
+        LEFT JOIN t_student t3 ON t1.user_id = t3.stu_id
+        <where>  
+            <if test="createUserName != null  and createUserName != ''"> and t1.create_user_name like concat('%', #{createUserName}, '%')</if>
+            <if test="courseId != null "> and t1.course_id = #{courseId}</if>
+            <if test="userId != null "> and t1.user_id = #{userId}</if>
+            <if test="score != null "> and t1.score = #{score}</if>
+        </where>
+    </select>
+    
+    <select id="selectTScoreById" parameterType="Long" resultMap="TScoreResult">
+        <include refid="selectTScoreVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTScore" parameterType="TScore" useGeneratedKeys="true" keyProperty="id">
+        insert into t_score
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">create_time,</if>
+            <if test="createUserName != null">create_user_name,</if>
+            <if test="courseId != null">course_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="score != null">score,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createUserName != null">#{createUserName},</if>
+            <if test="courseId != null">#{courseId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="score != null">#{score},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTScore" parameterType="TScore">
+        update t_score
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createUserName != null">create_user_name = #{createUserName},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="score != null">score = #{score},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTScoreById" parameterType="Long">
+        delete from t_score where id = #{id}
+    </delete>
+
+    <delete id="deleteTScoreByIds" parameterType="String">
+        delete from t_score where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
